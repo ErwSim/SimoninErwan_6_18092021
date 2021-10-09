@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
+import mongooseUniqueValidator from "mongoose-unique-validator";
 
-export const UserModel = mongoose.model("User", {
+const userSchema = mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
 });
+
+userSchema.plugin(mongooseUniqueValidator);
+
+export const UserModel = mongoose.model("User", userSchema);
