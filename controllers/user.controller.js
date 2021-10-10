@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
-import { UserModel } from "../models/user.model";
+import { UserModel } from "../models";
 
 export class UserController {
   /**
@@ -29,10 +29,10 @@ export class UserController {
       console.error(e);
 
       if (e instanceof mongoose.Error.ValidationError) {
-        return res.status(400).json({ e });
+        return res.status(400).json(e);
       }
 
-      return res.status(500).json({ e });
+      return res.status(500).json(e);
     }
   }
 
@@ -40,7 +40,7 @@ export class UserController {
    * Login an user
    * @param {Request} req
    * @param {Response} res
-   * @returns
+   * @returns A http response
    */
   static async login(req, res) {
     const email = req.body.email;
@@ -66,7 +66,7 @@ export class UserController {
       });
     } catch (e) {
       console.error(e);
-      return res.status(500).json({ e });
+      return res.status(500).json(e);
     }
   }
 }

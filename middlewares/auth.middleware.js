@@ -9,7 +9,7 @@ import jwt from "jsonwebtoken";
  */
 export function authMiddleWare(req, res, next) {
   try {
-    const authHeader = req.headers.authorization.split(" ")[1];
+    const authHeader = req.headers.authorization.split(" ");
 
     if (authHeader[0] === "Bearer") {
       const decodedToken = jwt.verify(authHeader[1], process.env.JWT_SECRET);
@@ -18,6 +18,7 @@ export function authMiddleWare(req, res, next) {
       if (req.body.userId && req.body.userId !== userId) {
         throw new Error("InvalidUserId");
       } else {
+        req.userId = userId;
         next();
       }
     } else {
