@@ -1,7 +1,7 @@
 import express from "express";
 import multer from "multer";
 import { SauceController } from "../controllers";
-import { userIdMiddleWare } from "../middlewares/user-id.middleware";
+import { userIdMiddleWare } from "../middlewares";
 import { SauceModel } from "../models";
 
 const saucesRoute = express.Router();

@@ -141,6 +141,12 @@ export class SauceController {
     }
   }
 
+  /**
+   * Like of dislike a sauce
+   * @param {Request} req
+   * @param {Response} res
+   * @returns success message
+   */
   static async like(req, res) {
     try {
       const id = req.params.id;

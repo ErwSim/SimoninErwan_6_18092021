@@ -15,7 +15,7 @@ export class UserController {
     const password = req.body.password;
 
     try {
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password, 12);
 
       const user = new UserModel({
         email: email,
@@ -46,6 +46,12 @@ export class UserController {
     const email = req.body.email;
     const password = req.body.password;
 
+    // If email is anon it signifies the user has been anonymized for RGPD compliance
+    // Thus it cannot be used to connect
+    if (email === "anon") {
+      return res.status(401).json({ message: "userNotFound" });
+    }
+
     try {
       const user = await UserModel.findOne({ email });
 
@@ -67,6 +73,55 @@ export class UserController {
     } catch (e) {
       console.error(e);
       return res.status(500).json(e);
+    }
+  }
+
+  /**
+   * Anonymize an user for RGPD compliance
+   * @param {Request} req
+   * @param {Response} res
+   * @returns A http response
+   */
+  static async anonymize(req, res) {
+    const id = req.params.id;
+
+    try {
+      await UserModel.updateOne(
+        { _id: id },
+        { email: "anon", password: "anon" }
+      );
+      return res.status(200).json({ message: "userAnonymized" });
+    } catch (e) {
+      console.error(e);
+
+      if (e instanceof mongoose.Error.ValidationError) {
+        return res.status(400).json(e);
+      }
+
+      return res.status(500).json(e);
+    }
+  }
+
+  /**
+   * Anonymize without Express handling it with a route
+   * @param {number} id
+   * @returns {Promise<boolean | Error>}
+   */
+  static async silentAnonymize(id) {
+    try {
+      await UserModel.updateOne(
+        { _id: id },
+        { email: "anon", password: "anon" }
+      );
+      return true;
+    } catch (e) {
+      console.error(e);
+
+      if (e instanceof mongoose.Error.ValidationError) {
+        throw e;
+      }
+
+      throw e;
     }
   }
 }
