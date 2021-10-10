@@ -21,5 +21,6 @@ saucesRoute.delete(
   userIdMiddleWare(SauceModel),
   SauceController.delete
 );
+saucesRoute.post("/:id/like", SauceController.like);
 
 export { saucesRoute };

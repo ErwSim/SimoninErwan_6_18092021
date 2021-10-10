@@ -140,4 +140,72 @@ export class SauceController {
       return res.status(500).json(e);
     }
   }
+
+  static async like(req, res) {
+    try {
+      const id = req.params.id;
+      const sauce = await SauceModel.findOne({ _id: id });
+
+      if (req.userId !== req.body.userId) {
+        return res.status(403).json({ message: "unauthorized request" });
+      }
+
+      const newSauce = Object.assign({
+        likes: sauce.likes,
+        dislikes: sauce.dislikes,
+        usersLiked: sauce.usersLiked,
+        usersDisliked: sauce.usersDisliked,
+      });
+
+      const { usersLiked, usersDisliked } = sauce;
+      const didUserLiked = usersLiked.findIndex(
+        (userId) => userId === req.body.userId
+      );
+      const didUserDisliked = usersDisliked.findIndex(
+        (userId) => userId === req.body.userId
+      );
+
+      switch (req.body.like) {
+        case 0:
+          if (didUserLiked !== -1) {
+            newSauce.usersLiked.splice(didUserLiked, 1);
+            newSauce.likes--;
+          }
+
+          if (didUserDisliked !== -1) {
+            newSauce.usersDisliked.splice(didUserDisliked, 1);
+            newSauce.dislikes--;
+          }
+          break;
+
+        case 1:
+          if (didUserLiked === -1) {
+            newSauce.usersLiked.push(req.body.userId);
+            newSauce.likes++;
+          }
+          break;
+
+        case -1:
+          if (didUserDisliked === -1) {
+            newSauce.usersDisliked.push(req.body.userId);
+            newSauce.dislikes++;
+          }
+          break;
+      }
+
+      await SauceModel.updateOne({ _id: id }, newSauce);
+
+      return res
+        .status(200)
+        .json({ message: req.body.like ? "sauceLiked" : "sauceDisliked" });
+    } catch (e) {
+      console.error(e);
+
+      if (e instanceof mongoose.Error.ValidationError) {
+        return res.status(400).json(e);
+      }
+
+      return res.status(500).json(e);
+    }
+  }
 }
