@@ -7,6 +7,7 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    trim: true,
     validate: [validator.validate, "invalidEmail"],
   },
   password: { type: String, required: true },
